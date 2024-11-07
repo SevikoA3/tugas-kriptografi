@@ -1,8 +1,8 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import isLoggedIn from '../utils/loggedIn';
-import Logout from '../features/Logout';
-import BackButton from '../features/BackButton';
+import React, { useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import isLoggedIn from "../utils/loggedIn";
+import Logout from "../features/Logout";
+import BackButton from "../features/BackButton";
 
 function ImageDecryption() {
   const navigate = useNavigate();
@@ -10,24 +10,24 @@ function ImageDecryption() {
     const checkLoggedIn = async () => {
       const loggedIn = await isLoggedIn();
       if (!loggedIn) {
-        navigate('/login');
+        navigate("/login");
       }
     };
     checkLoggedIn();
   }, [navigate]);
 
   const [selectedFile, setSelectedFile] = useState(null);
-  const [extractedMessage, setExtractedMessage] = useState('');
+  const [extractedMessage, setExtractedMessage] = useState("");
   const canvasRef = useRef(null);
 
   const handleFileChange = (e) => {
     setSelectedFile(e.target.files[0]);
-    setExtractedMessage('');
+    setExtractedMessage("");
   };
 
   const handleDecryption = () => {
     if (!selectedFile) {
-      alert('Silakan pilih file gambar terenkripsi.');
+      alert("Silakan pilih file gambar terenkripsi.");
       return;
     }
 
@@ -36,7 +36,7 @@ function ImageDecryption() {
     const img = new Image();
     img.onload = () => {
       const canvas = canvasRef.current;
-      const ctx = canvas.getContext('2d');
+      const ctx = canvas.getContext("2d");
       canvas.width = img.width;
       canvas.height = img.height;
 
@@ -72,32 +72,35 @@ function ImageDecryption() {
       if (charCode < 32 || charCode > 126) break;
       chars.push(String.fromCharCode(charCode));
     }
-    return chars.join('');
+    return chars.join("");
   };
 
   return (
-    <div className="h-full">
-      <Logout />
-      <BackButton />
-      <div className="flex flex-col items-center h-full pt-32 p-4 bg-gray-100">
-        <h2 className="mb-6 text-2xl font-bold">Dekripsi Gambar (Steganografi)</h2>
+    <div className="flex items-center justify-center min-h-screen bg-primary-bg text-text-primary">
+      <div className="absolute left-2 top-2">
+        <BackButton />
+      </div>
+      <div className="w-full max-w-2xl p-8 bg-secondary-bg rounded-3xl shadow-md">
+        <h2 className="mb-6 text-2xl font-bold text-center">
+          Dekripsi Gambar (Steganografi)
+        </h2>
         <input
           type="file"
           accept="image/*"
-          className="mb-4"
+          className="w-full px-4 py-2 mb-4 border border-border-color rounded bg-secondary-bg text-text-primary"
           onChange={handleFileChange}
         />
         <button
-          className="px-6 py-2 font-bold text-white bg-green-500 rounded hover:bg-green-700"
+          className="w-full px-4 py-2 font-bold text-text-secondary rounded bg-accent-bg hover:bg-accent-hover transition delay-100"
           onClick={handleDecryption}
         >
           Dekripsi Gambar
         </button>
         {extractedMessage && (
-          <div className="w-full max-w-2xl mt-4">
+          <div className="w-full mt-6">
             <h3 className="mb-2 text-xl font-semibold">Pesan Tersembunyi:</h3>
             <textarea
-              className="w-full p-4 border rounded"
+              className="w-full p-4 border border-border-color rounded bg-secondary-bg text-text-primary"
               rows="4"
               value={extractedMessage}
               readOnly
@@ -105,7 +108,7 @@ function ImageDecryption() {
           </div>
         )}
         {/* Canvas tersembunyi untuk pemrosesan gambar */}
-        <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
+        <canvas ref={canvasRef} style={{ display: "none" }}></canvas>
       </div>
     </div>
   );

@@ -58,42 +58,47 @@ function FileEncryption() {
     const blob = new Blob([encryptedData], { type: "text/plain;charset=utf-8" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `${fileName.split('.')[0]}.txt`;
+    link.download = `${fileName.split(".")[0]}.txt`;
     link.click();
   };
 
   return (
-    <div className="h-full">
-      <Logout />
-      <BackButton />
-      <div className="flex flex-col items-center h-full pt-32 p-4 bg-gray-100">
-        <h2 className="mb-6 text-2xl font-bold">Enkripsi File</h2>
-        <input type="file" className="mb-4" onChange={handleFileChange} />
+    <div className="flex items-center justify-center min-h-screen bg-primary-bg text-text-primary">
+      <div className="absolute left-2 top-2">
+        <BackButton />
+      </div>
+      <div className="w-full max-w-2xl p-8 bg-secondary-bg rounded-3xl shadow-md">
+        <h2 className="mb-6 text-2xl font-bold text-center">Enkripsi File</h2>
+        <input
+          type="file"
+          className="w-full px-4 py-2 mb-4 border border-border-color rounded bg-secondary-bg text-text-primary"
+          onChange={handleFileChange}
+        />
         <input
           type="text"
           placeholder="Masukkan Kunci Rahasia"
-          className="w-full max-w-2xl p-4 mb-4 border rounded"
+          className="w-full px-4 py-2 mb-4 border border-border-color rounded bg-secondary-bg text-text-primary"
           value={secretKey}
           onChange={(e) => setSecretKey(e.target.value)}
         />
         <button
-          className="px-6 py-2 mb-4 font-bold text-white bg-blue-500 rounded hover:bg-blue-700"
+          className="w-full px-4 py-2 font-bold text-text-secondary rounded bg-accent-bg hover:bg-accent-hover transition delay-100 mb-4"
           onClick={handleEncryption}
         >
           Enkripsi File
         </button>
         {encryptedData && (
-          <div className="w-full max-w-2xl">
+          <div className="w-full">
             <h3 className="mb-2 text-xl font-semibold">Data Terenkripsi:</h3>
             <textarea
-              className="w-full p-4 border rounded"
+              className="w-full p-4 mb-4 border border-border-color rounded bg-secondary-bg text-text-primary"
               rows="6"
               value={encryptedData}
               readOnly
             />
-            <div className="flex flex-col w-full items-center">
+            <div className="flex flex-col items-center">
               <button
-                className="px-6 py-2 mt-4 font-bold text-white bg-green-500 rounded hover:bg-green-700"
+                className="w-full px-4 py-2 font-bold text-text-secondary rounded bg-green-500 hover:bg-green-700 transition delay-100"
                 onClick={handleDownload}
               >
                 Download Encrypted Data as TXT

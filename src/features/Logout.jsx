@@ -11,7 +11,7 @@ function Logout() {
   return (
     <div className="flex w-full justify-end absolute">
       <button
-        className="px-4 py-2 font-bold text-white bg-red-500 rounded hover:bg-red-700 mr-4 mt-4"
+        className="px-4 py-2 font-bold text-text-secondary rounded bg-accent-bg hover:bg-accent-hover transition delay-100 mr-4 mt-4"
         onClick={handleLogout}
       >
         Logout

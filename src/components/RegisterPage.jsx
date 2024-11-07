@@ -16,7 +16,7 @@ function RegisterPage() {
     const checkLoginStatus = async () => {
       const loggedIn = await isLoggedIn();
       if (loggedIn) {
-        navigate('/dashboard');
+        navigate("/dashboard");
       }
     };
     checkLoginStatus();
@@ -57,7 +57,11 @@ function RegisterPage() {
         signal: abortControllerRef.current.signal,
       });
 
-      if (userSnapshot.docs.some((doc) => doc.data().username === username)) {
+      if (
+        userSnapshot.docs.some(
+          (doc) => doc.data().username === username.toLowerCase()
+        )
+      ) {
         alert("Username is already taken");
         setIsLoading(false);
         return;
@@ -94,17 +98,17 @@ function RegisterPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+    <div className="flex items-center justify-center min-h-screen bg-primary-bg">
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="flex flex-col justify-center bg-white p-6 rounded shadow-md text-center">
+          <div className="flex flex-col justify-center bg-secondary-bg p-6 rounded shadow-md text-center">
             <div className="loader mx-auto">
               <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
-              <p>Tunggu Sebentar...</p>
+              <p className="text-text-primary">Tunggu Sebentar...</p>
             </div>
             <div>
               <button
-                className="mt-4 px-4 py-2 font-bold text-white bg-red-500 rounded hover:bg-red-700"
+                className="mt-4 px-4 py-2 font-bold text-text-secondary rounded bg-accent-bg hover:bg-accent-hover"
                 onClick={handleCancel}
               >
                 Cancel
@@ -113,15 +117,15 @@ function RegisterPage() {
           </div>
         </div>
       )}
-      <div className="w-full max-w-md p-8 bg-white rounded shadow-md relative">
-        <h1 className="mb-6 text-2xl font-bold text-center">
+      <div className="w-full max-w-md p-8 bg-secondary-bg rounded-3xl shadow-md relative">
+        <h1 className="mb-6 text-2xl font-bold text-center text-text-primary">
           SeCrypto Register
         </h1>
         <div className="space-y-4">
           <input
             type="text"
             placeholder="Username"
-            className="w-full px-4 py-2 border rounded"
+            className="w-full px-4 py-2 border border-border-color rounded bg-secondary-bg text-text-primary"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -130,14 +134,14 @@ function RegisterPage() {
           <input
             type="password"
             placeholder="Password"
-            className="w-full px-4 py-2 border rounded"
+            className="w-full px-4 py-2 border border-border-color rounded bg-secondary-bg text-text-primary"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             onKeyDown={handleKeyDown}
             disabled={isLoading}
           />
           <button
-            className="w-full px-4 py-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700 disabled:bg-blue-300"
+            className="w-full px-4 py-2 font-bold text-text-secondary rounded bg-accent-bg hover:bg-accent-hover transition delay-100"
             onClick={handleRegister}
             disabled={isLoading}
           >
@@ -145,7 +149,7 @@ function RegisterPage() {
           </button>
           <Link
             to="/login"
-            className="block text-center text-blue-500 hover:underline"
+            className="block text-center text-text-primary transition-all hover:underline"
           >
             Login
           </Link>

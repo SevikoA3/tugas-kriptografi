@@ -80,32 +80,37 @@ function FileDecryption() {
   };
 
   return (
-    <div className="h-full">
-      <Logout />
-      <BackButton />
-      <div className="flex flex-col items-center h-full pt-32 p-4 bg-gray-100">
-        <h2 className="mb-6 text-2xl font-bold">Dekripsi File</h2>
+    <div className="flex items-center justify-center min-h-screen bg-primary-bg text-text-primary">
+      <div className="absolute left-2 top-2">
+        <BackButton />
+      </div>
+      <div className="w-full max-w-2xl p-8 bg-secondary-bg rounded-3xl shadow-md">
+        <h2 className="mb-6 text-2xl font-bold text-center">Dekripsi File</h2>
         <input
           type="text"
-          className="w-full max-w-2xl p-4 mb-4 border rounded"
+          className="w-full px-4 py-2 mb-4 border border-border-color rounded bg-secondary-bg text-text-primary"
           placeholder="Masukkan Kunci Rahasia"
           value={secretKey}
           onChange={(e) => setSecretKey(e.target.value)}
         />
-        <input type="file" className="mb-4" onChange={handleFileChange} />
+        <input
+          type="file"
+          className="w-full px-4 py-2 mb-4 border border-border-color rounded bg-secondary-bg text-text-primary"
+          onChange={handleFileChange}
+        />
         <button
-          className="px-6 py-2 mb-4 font-bold text-white bg-green-500 rounded hover:bg-green-700"
+          className="w-full px-4 py-2 font-bold text-text-secondary rounded bg-accent-bg hover:bg-accent-hover transition delay-100 mb-4"
           onClick={handleDecryption}
         >
           Dekripsi File
         </button>
         {decryptedBlob && (
-          <div className="w-full max-w-2xl">
+          <div className="w-full">
             <h3 className="mb-2 text-xl font-semibold">File Didekripsi:</h3>
             <a
               href={decryptedBlob.url}
               download={`${fileName}.${decryptedBlob.extension}`}
-              className="text-blue-500 hover:underline"
+              className="text-accent-bg hover:underline"
             >
               Download File Didekripsi
             </a>
