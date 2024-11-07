@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import isLoggedIn from "../utils/loggedIn";
-import Logout from "../features/Logout";
 import BackButton from "../features/BackButton";
 
 function ImageEncryption() {

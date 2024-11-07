@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import CryptoJS from "crypto-js";
 import { useNavigate } from "react-router-dom";
 import isLoggedIn from "../utils/loggedIn";
-import Logout from "../features/Logout";
 import BackButton from "../features/BackButton";
 
 function FileDecryption() {

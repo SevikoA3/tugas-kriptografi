@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import isLoggedIn from "../utils/loggedIn";
-import Logout from "../features/Logout";
 import BackButton from "../features/BackButton";
 
 // Fungsi Enkripsi
