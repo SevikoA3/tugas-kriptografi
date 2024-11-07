@@ -98,7 +98,7 @@ function FileEncryption() {
             />
             <div className="flex flex-col items-center">
               <button
-                className="w-full px-4 py-2 font-bold text-text-secondary rounded bg-green-500 hover:bg-green-700 transition delay-100"
+                className="w-full px-4 py-2 font-bold text-text-secondary rounded bg-accent-bg hover:bg-accent-hover transition delay-100"
                 onClick={handleDownload}
               >
                 Download Encrypted Data as TXT

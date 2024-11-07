@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import isLoggedIn from "../utils/loggedIn";
-import Logout from "../features/Logout";
 import BackButton from "../features/BackButton";
 
 function ImageDecryption() {
@@ -31,29 +30,39 @@ function ImageDecryption() {
       return;
     }
 
-    const imgSrc = URL.createObjectURL(selectedFile);
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = canvasRef.current;
+        const ctx = canvas.getContext("2d");
+        canvas.width = img.width;
+        canvas.height = img.height;
 
-    const img = new Image();
-    img.onload = () => {
-      const canvas = canvasRef.current;
-      const ctx = canvas.getContext("2d");
-      canvas.width = img.width;
-      canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+        const imageData = ctx.getImageData(0, 0, img.width, img.height);
+        const data = imageData.data;
 
-      ctx.drawImage(img, 0, 0);
-      const imageData = ctx.getImageData(0, 0, img.width, img.height);
-      const data = imageData.data;
+        const messageBits = [];
+        for (let i = 0; i < data.length / 4; i++) {
+          const bit = data[i * 4] & 1;
+          messageBits.push(bit);
+        }
 
-      const messageBits = [];
-      for (let i = 0; i < data.length / 4; i++) {
-        const bit = data[i * 4] & 1;
-        messageBits.push(bit);
-      }
-
-      const extractedMessage = bitsToMessage(messageBits);
-      setExtractedMessage(extractedMessage);
+        const extractedMessage = bitsToMessage(messageBits);
+        setExtractedMessage(extractedMessage);
+      };
+      img.onerror = (err) => {
+        console.error("Error loading image:", err);
+        alert("Terjadi kesalahan saat memuat gambar.");
+      };
+      img.src = reader.result;
     };
-    img.src = imgSrc;
+    reader.onerror = (err) => {
+      console.error("Error reading file:", err);
+      alert("Terjadi kesalahan saat membaca file gambar.");
+    };
+    reader.readAsDataURL(selectedFile);
   };
 
   const bitsToMessage = (bits) => {
