@@ -74,7 +74,7 @@ function TextDecryption() {
     }
 
     try {
-      // Proses Super Dekripsi (urutan terbalik)
+      // Super Decryption Process (reverse order)
       let normalizedKey = secretKey.replace(/\s+/g, "").toUpperCase();
       let decrypted = encryptedText;
       decrypted = atbashCipherDecrypt(decrypted);
@@ -91,16 +91,55 @@ function TextDecryption() {
   };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(decryptedText);
-    alert("Text berhasil disalin!");
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(decryptedText).then(
+        () => {
+          alert("Teks berhasil disalin!");
+        },
+        (err) => {
+          console.error("Could not copy text: ", err);
+          fallbackCopyTextToClipboard(decryptedText);
+        }
+      );
+    } else {
+      fallbackCopyTextToClipboard(decryptedText);
+    }
+  };
+
+  const fallbackCopyTextToClipboard = (text) => {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+
+    // Avoid scrolling to bottom
+    textArea.style.position = "fixed";
+    textArea.style.top = "-1000px";
+    textArea.style.left = "-1000px";
+
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+
+    try {
+      const successful = document.execCommand("copy");
+      if (successful) {
+        alert("Teks berhasil disalin!");
+      } else {
+        alert("Gagal menyalin teks.");
+      }
+    } catch (err) {
+      console.error("Fallback: Oops, unable to copy", err);
+      alert("Gagal menyalin teks.");
+    }
+
+    document.body.removeChild(textArea);
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-primary-bg text-text-primary">
+    <div className="flex items-center justify-center min-h-dvh bg-primary-bg text-text-primary">
       <div className="absolute left-2 top-2">
         <BackButton />
       </div>
-      <div className="w-full max-w-2xl p-8 bg-secondary-bg rounded-3xl shadow-md">
+      <div className="w-full max-w-2xl p-8 bg-secondary-bg rounded-3xl shadow-md mx-10">
         <h2 className="mb-6 text-2xl font-bold text-center">
           Super Dekripsi Teks
         </h2>
@@ -138,7 +177,7 @@ function TextDecryption() {
                 className="w-full px-4 py-2 mt-4 font-bold text-text-secondary rounded bg-accent-bg hover:bg-accent-hover transition delay-100"
                 onClick={handleCopy}
               >
-                Copy Text
+                Salin Teks
               </button>
             </div>
           </div>

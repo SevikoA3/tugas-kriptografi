@@ -98,10 +98,10 @@ function RegisterPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-primary-bg">
+    <div className="flex items-center justify-center min-h-dvh bg-primary-bg">
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="flex flex-col justify-center bg-secondary-bg p-6 rounded shadow-md text-center">
+          <div className="flex flex-col justify-center bg-secondary-bg p-6 shadow-md text-center rounded-2xl">
             <div className="loader mx-auto">
               <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
               <p className="text-text-primary">Tunggu Sebentar...</p>
@@ -117,7 +117,7 @@ function RegisterPage() {
           </div>
         </div>
       )}
-      <div className="w-full max-w-md p-8 bg-secondary-bg rounded-3xl shadow-md relative">
+      <div className="w-full max-w-md p-8 bg-secondary-bg rounded-3xl shadow-md relative mx-10">
         <h1 className="mb-6 text-2xl font-bold text-center text-text-primary">
           SeCrypto Register
         </h1>

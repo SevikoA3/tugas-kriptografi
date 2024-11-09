@@ -48,25 +48,40 @@ function ImageEncryption() {
         const imageData = ctx.getImageData(0, 0, img.width, img.height);
         const data = imageData.data;
 
-        // Konversi pesan menjadi bit
+        // Convert message to bits
         const messageBits = messageToBits(message);
 
-        // Cek apakah gambar cukup untuk menampung pesan
-        if (messageBits.length > data.length / 4) {
+        // Encode message length in first 32 bits
+        const messageLengthBits = intToBits(messageBits.length, 32);
+
+        // Combine length bits and message bits
+        const totalBits = messageLengthBits.concat(messageBits);
+
+        // Collect indices of opaque pixels
+        const opaquePixelIndices = [];
+        for (let i = 0; i < data.length / 4; i++) {
+          if (data[i * 4 + 3] !== 0) {
+            opaquePixelIndices.push(i);
+          }
+        }
+
+        // Check if the image can hold the message
+        if (totalBits.length > opaquePixelIndices.length) {
           alert(
             "Pesan terlalu panjang untuk disembunyikan dalam gambar yang dipilih."
           );
           return;
         }
 
-        // Sembunyikan pesan dalam data gambar
-        for (let i = 0; i < messageBits.length; i++) {
-          data[i * 4] = (data[i * 4] & ~1) | messageBits[i]; // Modifikasi LSB kanal merah
+        // Hide bits in the LSB of red channel of opaque pixels
+        for (let i = 0; i < totalBits.length; i++) {
+          const pixelIndex = opaquePixelIndices[i];
+          data[pixelIndex * 4] = (data[pixelIndex * 4] & ~1) | totalBits[i];
         }
 
         ctx.putImageData(imageData, 0, 0);
 
-        // Dapatkan URL gambar terenkripsi
+        // Get the encrypted image URL
         const encryptedImageURL = canvas.toDataURL();
         setEncryptedImage(encryptedImageURL);
       };
@@ -86,12 +101,20 @@ function ImageEncryption() {
     return messageBits;
   };
 
+  const intToBits = (num, bits) => {
+    const result = [];
+    for (let i = bits - 1; i >= 0; i--) {
+      result.push((num >> i) & 1);
+    }
+    return result;
+  };
+
   return (
-    <div className="flex items-center justify-center min-h-screen bg-primary-bg text-text-primary">
+    <div className="flex items-center justify-center min-h-dvh bg-primary-bg text-text-primary">
       <div className="absolute left-2 top-2">
         <BackButton />
       </div>
-      <div className="w-full max-w-2xl p-8 bg-secondary-bg rounded-3xl shadow-md">
+      <div className="w-full max-w-2xl p-8 bg-secondary-bg rounded-3xl shadow-md mx-10">
         <h2 className="mb-6 text-2xl font-bold text-center">
           Enkripsi Gambar (Steganografi)
         </h2>
@@ -131,7 +154,7 @@ function ImageEncryption() {
             </a>
           </div>
         )}
-        {/* Canvas tersembunyi untuk pemrosesan gambar */}
+        {/* Hidden canvas for image processing */}
         <canvas ref={canvasRef} style={{ display: "none" }}></canvas>
       </div>
     </div>
