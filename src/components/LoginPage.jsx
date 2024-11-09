@@ -106,7 +106,7 @@ function LoginPage() {
           </div>
         </div>
       )}
-      <div className="w-full max-w-md p-8 bg-secondary-bg rounded-3xl shadow-md relative mx-10">
+      <div className="w-full max-w-md p-8 bg-secondary-bg rounded-3xl shadow-md relative mx-5">
         <h1 className="mb-6 text-2xl font-bold text-center text-text-primary">
           SeCrypto Login
         </h1>

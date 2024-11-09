@@ -21,11 +21,11 @@ function Dashboard() {
   return (
     <div className="h-full">
       <Logout />
-      <div className="flex flex-col items-center justify-center min-h-dvh bg-primary-bg">
-        <h2 className="mb-8 text-3xl font-bold text-text-primary mx-10 text-center">
+      <div className="flex flex-col items-center justify-center min-h-dvh bg-primary-bg mx-5">
+        <h2 className="mb-8 text-3xl font-bold text-text-primary text-center">
           Selamat Datang di Dashboard SeCrypto
         </h2>
-        <table className="table-auto border-collapse border border-border-color mx-10">
+        <table className="table-auto border-collapse border border-border-color">
           <thead>
             <tr>
               <th className="px-4 py-2 border border-border-color text-text-primary">

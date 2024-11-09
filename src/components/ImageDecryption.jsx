@@ -149,7 +149,7 @@ function ImageDecryption() {
           </div>
         </div>
       )}
-      <div className="w-full max-w-2xl p-8 bg-secondary-bg rounded-3xl shadow-md mx-10 relative">
+      <div className="w-full max-w-2xl p-8 bg-secondary-bg rounded-3xl shadow-md mx-5 relative">
         <h2 className="mb-6 text-2xl font-bold text-center">
           Dekripsi Gambar (Steganografi)
         </h2>

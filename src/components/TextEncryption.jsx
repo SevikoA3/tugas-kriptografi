@@ -147,7 +147,7 @@ function TextEncryption() {
       <div className="absolute left-2 top-2">
         <BackButton />
       </div>
-      <div className="w-full max-w-2xl p-8 bg-secondary-bg rounded-3xl shadow-md mx-10">
+      <div className="w-full max-w-2xl p-8 bg-secondary-bg rounded-3xl shadow-md mx-5">
         <h2 className="mb-6 text-2xl font-bold text-center">
           Super Enkripsi Teks
         </h2>
