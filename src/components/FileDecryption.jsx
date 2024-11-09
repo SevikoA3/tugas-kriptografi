@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import CryptoJS from "crypto-js";
 import { useNavigate } from "react-router-dom";
 import isLoggedIn from "../utils/loggedIn";
@@ -9,6 +9,8 @@ function FileDecryption() {
   const [decryptedBlob, setDecryptedBlob] = useState(null);
   const [fileName, setFileName] = useState("");
   const [secretKey, setSecretKey] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const isCancelledRef = useRef(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -28,6 +30,10 @@ function FileDecryption() {
     reader.onload = () => {
       setEncryptedData(reader.result);
     };
+    reader.onerror = (error) => {
+      console.error("Error reading file:", error);
+      alert("Terjadi kesalahan saat membaca file.");
+    };
     reader.readAsText(file);
   };
 
@@ -42,6 +48,9 @@ function FileDecryption() {
       return;
     }
 
+    setIsLoading(true);
+    isCancelledRef.current = false;
+
     try {
       // Extract the encrypted data and the original file extension
       const lastDotIndex = encryptedData.lastIndexOf(".");
@@ -52,13 +61,22 @@ function FileDecryption() {
       const typedArray = convertWordArrayToUint8Array(decrypted);
       const blob = new Blob([typedArray]);
       const url = URL.createObjectURL(blob);
-      setDecryptedBlob({ url, extension: fileExtension });
+      if (!isCancelledRef.current) {
+        setDecryptedBlob({ url, extension: fileExtension });
+      }
     } catch (error) {
       alert(
         "Gagal mendekripsi file. Pastikan data terenkripsi valid dan kunci yang digunakan benar."
       );
       console.error("Error during file decryption:", error);
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  const handleCancel = () => {
+    isCancelledRef.current = true;
+    setIsLoading(false);
   };
 
   const convertWordArrayToUint8Array = (wordArray) => {
@@ -83,7 +101,25 @@ function FileDecryption() {
       <div className="absolute left-2 top-2">
         <BackButton />
       </div>
-      <div className="w-full max-w-2xl p-8 bg-secondary-bg rounded-3xl shadow-md mx-10">
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="flex flex-col justify-center bg-secondary-bg p-6 shadow-md text-center rounded-2xl">
+            <div className="loader mx-auto">
+              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
+              <p className="text-text-primary">Proses sedang berjalan...</p>
+            </div>
+            <div>
+              <button
+                className="mt-4 px-4 py-2 font-bold text-text-secondary rounded bg-accent-bg hover:bg-accent-hover"
+                onClick={handleCancel}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      <div className="w-full max-w-2xl p-8 bg-secondary-bg rounded-3xl shadow-md mx-10 relative">
         <h2 className="mb-6 text-2xl font-bold text-center">Dekripsi File</h2>
         <input
           type="text"
@@ -91,15 +127,18 @@ function FileDecryption() {
           placeholder="Masukkan Kunci Rahasia"
           value={secretKey}
           onChange={(e) => setSecretKey(e.target.value)}
+          disabled={isLoading}
         />
         <input
           type="file"
           className="w-full px-4 py-2 mb-4 border border-border-color rounded bg-secondary-bg text-text-primary"
           onChange={handleFileChange}
+          disabled={isLoading}
         />
         <button
           className="w-full px-4 py-2 font-bold text-text-secondary rounded bg-accent-bg hover:bg-accent-hover transition delay-100 mb-4"
           onClick={handleDecryption}
+          disabled={isLoading}
         >
           Dekripsi File
         </button>

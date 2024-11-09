@@ -5,6 +5,14 @@ import BackButton from "../features/BackButton";
 
 function ImageEncryption() {
   const navigate = useNavigate();
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [message, setMessage] = useState("");
+  const [encryptedImage, setEncryptedImage] = useState(null);
+  const [outputFileName, setOutputFileName] = useState("encrypted.png");
+  const canvasRef = useRef(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const isCancelledRef = useRef(false);
+
   useEffect(() => {
     const checkLoggedIn = async () => {
       const loggedIn = await isLoggedIn();
@@ -15,14 +23,15 @@ function ImageEncryption() {
     checkLoggedIn();
   }, [navigate]);
 
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [message, setMessage] = useState("");
-  const [encryptedImage, setEncryptedImage] = useState(null);
-  const canvasRef = useRef(null);
-
   const handleFileChange = (e) => {
-    setSelectedFile(e.target.files[0]);
+    const file = e.target.files[0];
+    setSelectedFile(file);
     setEncryptedImage(null);
+
+    if (file) {
+      // Always set output file name to "encrypted.png"
+      setOutputFileName("encrypted.png");
+    }
   };
 
   const handleEncryption = () => {
@@ -35,10 +44,21 @@ function ImageEncryption() {
       return;
     }
 
+    setIsLoading(true);
+    isCancelledRef.current = false;
+
     const reader = new FileReader();
     reader.onload = () => {
+      if (isCancelledRef.current) {
+        setIsLoading(false);
+        return;
+      }
       const img = new Image();
       img.onload = () => {
+        if (isCancelledRef.current) {
+          setIsLoading(false);
+          return;
+        }
         const canvas = canvasRef.current;
         const ctx = canvas.getContext("2d");
         canvas.width = img.width;
@@ -48,16 +68,10 @@ function ImageEncryption() {
         const imageData = ctx.getImageData(0, 0, img.width, img.height);
         const data = imageData.data;
 
-        // Convert message to bits
         const messageBits = messageToBits(message);
-
-        // Encode message length in first 32 bits
         const messageLengthBits = intToBits(messageBits.length, 32);
-
-        // Combine length bits and message bits
         const totalBits = messageLengthBits.concat(messageBits);
 
-        // Collect indices of opaque pixels
         const opaquePixelIndices = [];
         for (let i = 0; i < data.length / 4; i++) {
           if (data[i * 4 + 3] !== 0) {
@@ -65,15 +79,14 @@ function ImageEncryption() {
           }
         }
 
-        // Check if the image can hold the message
         if (totalBits.length > opaquePixelIndices.length) {
           alert(
             "Pesan terlalu panjang untuk disembunyikan dalam gambar yang dipilih."
           );
+          setIsLoading(false);
           return;
         }
 
-        // Hide bits in the LSB of red channel of opaque pixels
         for (let i = 0; i < totalBits.length; i++) {
           const pixelIndex = opaquePixelIndices[i];
           data[pixelIndex * 4] = (data[pixelIndex * 4] & ~1) | totalBits[i];
@@ -81,13 +94,33 @@ function ImageEncryption() {
 
         ctx.putImageData(imageData, 0, 0);
 
-        // Get the encrypted image URL
-        const encryptedImageURL = canvas.toDataURL();
-        setEncryptedImage(encryptedImageURL);
+        // Always save as PNG to preserve data integrity
+        const mimeType = "image/png";
+        const encryptedImageURL = canvas.toDataURL(mimeType);
+
+        if (!isCancelledRef.current) {
+          setEncryptedImage(encryptedImageURL);
+        }
+        setIsLoading(false);
+      };
+      img.onerror = (err) => {
+        console.error("Error loading image:", err);
+        alert("Terjadi kesalahan saat memuat gambar.");
+        setIsLoading(false);
       };
       img.src = reader.result;
     };
+    reader.onerror = (err) => {
+      console.error("Error reading file:", err);
+      alert("Terjadi kesalahan saat membaca file gambar.");
+      setIsLoading(false);
+    };
     reader.readAsDataURL(selectedFile);
+  };
+
+  const handleCancel = () => {
+    isCancelledRef.current = true;
+    setIsLoading(false);
   };
 
   const messageToBits = (message) => {
@@ -114,7 +147,25 @@ function ImageEncryption() {
       <div className="absolute left-2 top-2">
         <BackButton />
       </div>
-      <div className="w-full max-w-2xl p-8 bg-secondary-bg rounded-3xl shadow-md mx-10">
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="flex flex-col justify-center bg-secondary-bg p-6 shadow-md text-center rounded-2xl">
+            <div className="loader mx-auto">
+              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
+              <p className="text-text-primary">Proses sedang berjalan...</p>
+            </div>
+            <div>
+              <button
+                className="mt-4 px-4 py-2 font-bold text-text-secondary rounded bg-accent-bg hover:bg-accent-hover"
+                onClick={handleCancel}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      <div className="w-full max-w-2xl p-8 bg-secondary-bg rounded-3xl shadow-md mx-10 relative">
         <h2 className="mb-6 text-2xl font-bold text-center">
           Enkripsi Gambar (Steganografi)
         </h2>
@@ -123,6 +174,7 @@ function ImageEncryption() {
           accept="image/*"
           className="w-full px-4 py-2 mb-4 border border-border-color rounded bg-secondary-bg text-text-primary"
           onChange={handleFileChange}
+          disabled={isLoading}
         />
         <textarea
           placeholder="Masukkan pesan untuk disembunyikan"
@@ -130,10 +182,12 @@ function ImageEncryption() {
           rows="4"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
+          disabled={isLoading}
         />
         <button
           className="w-full px-4 py-2 font-bold text-text-secondary rounded bg-accent-bg hover:bg-accent-hover transition delay-100"
           onClick={handleEncryption}
+          disabled={isLoading}
         >
           Enkripsi Gambar
         </button>
@@ -147,7 +201,7 @@ function ImageEncryption() {
             />
             <a
               href={encryptedImage}
-              download="encrypted.png"
+              download={outputFileName}
               className="inline-block px-4 py-2 font-bold text-text-secondary rounded bg-accent-bg hover:bg-accent-hover transition delay-100"
             >
               Download Gambar Terenkripsi
