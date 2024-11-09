@@ -11,7 +11,7 @@ function BackButton() {
   return (
     <div className="flex w-full justify-start absolute">
       <button
-        className="p-2 pl-3 font-bold text-text-secondary rounded bg-accent-bg hover:bg-accent-hover transition delay-100 ml-4 mt-4"
+        className="p-2 pl-3 font-bold text-text-secondary rounded bg-accent-bg hover:bg-accent-hover transition delay-100 ml-4 mt-4 z-50"
         onClick={handleBack}
       >
         <img src={backIcon} alt="Back" className="w-4 h-4 mr-5" />
