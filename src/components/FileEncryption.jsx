@@ -54,7 +54,7 @@ function FileEncryption() {
       const wordArray = CryptoJS.lib.WordArray.create(reader.result);
       const encrypted = CryptoJS.RC4.encrypt(wordArray, secretKey).toString();
 
-      // Combine encrypted data with the original file extension
+      // Menggabungkan data terenkripsi dengan ekstensi file asli
       const fileExtension = selectedFile.name.split(".").pop();
       const outputData = `${encrypted}.${fileExtension}`;
 

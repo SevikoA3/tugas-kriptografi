@@ -53,7 +53,7 @@ function FileDecryption() {
     isCancelledRef.current = false;
 
     try {
-      // Extract the encrypted data and the original file extension
+      // Extract semua karakter sebelum titik terakhir sebagai data terenkripsi
       const lastDotIndex = encryptedData.lastIndexOf(".");
       const encryptedText = encryptedData.substring(0, lastDotIndex);
       const fileExtension = encryptedData.substring(lastDotIndex + 1);
@@ -98,6 +98,15 @@ function FileDecryption() {
       }
     }
     return u8;
+  };
+
+  const handleDownload = () => {
+    const link = document.createElement("a");
+    link.href = decryptedBlob.url;
+    link.download = `${fileName}.${decryptedBlob.extension}`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -149,13 +158,12 @@ function FileDecryption() {
         {decryptedBlob && (
           <div className="w-full">
             <h3 className="mb-2 text-xl font-semibold">File Didekripsi:</h3>
-            <a
-              href={decryptedBlob.url}
-              download={`${fileName}.${decryptedBlob.extension}`}
-              className="text-accent-bg hover:underline"
+            <button
+              className="w-full px-4 py-2 font-bold text-text-secondary rounded bg-accent-bg hover:bg-accent-hover transition delay-100 mb-4"
+              onClick={handleDownload}
             >
               Download File Didekripsi
-            </a>
+            </button>
             {decryptionExplanation && (
               <div className="mt-4">
                 <h3 className="mb-2 text-xl font-semibold">Penjelasan Dekripsi:</h3>
