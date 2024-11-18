@@ -9,6 +9,7 @@ import FileEncryption from './components/FileEncryption';
 import TextDecryption from './components/TextDecryption';
 import ImageDecryption from './components/ImageDecryption';
 import FileDecryption from './components/FileDecryption';
+import Histories from './components/Histories';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/histories" element={<Histories />} />
         <Route path="/text-encryption" element={<TextEncryption />} />
         <Route path='/text-decryption' element={<TextDecryption />} />
         <Route path="/image-encryption" element={<ImageEncryption />} />

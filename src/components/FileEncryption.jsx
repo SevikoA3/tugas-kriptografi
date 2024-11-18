@@ -1,8 +1,24 @@
 import React, { useEffect, useState, useRef } from "react";
 import CryptoJS from "crypto-js";
 import { useNavigate } from "react-router-dom";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import isLoggedIn from "../utils/loggedIn";
 import BackButton from "../features/BackButton";
+import { storage } from "../utils/connect_db";
+import { addDoc, collection } from "firebase/firestore";
+import { db } from "../utils/connect_db";
+
+const uploadToHistories = async (data) => {
+  const session = JSON.parse(localStorage.getItem("session"));
+  const historiesCollection = collection(db, "histories");
+  const filename = data.fileName;
+  await addDoc(historiesCollection, {
+    username: session.username,
+    ...data,
+    storagePath: `encrypted_files/${filename}`,
+    timestamp: new Date()
+  });
+};
 
 function FileEncryption() {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -27,8 +43,15 @@ function FileEncryption() {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     setSelectedFile(file);
-    setFileName(file.name);
+    setFileName(`${Math.random().toString(36).substring(2, 12)}.txt`);
     setEncryptedData("");
+  };
+
+  const uploadToFirebaseStorage = async (data) => {
+    const blob = new Blob([data], { type: "text/plain;charset=utf-8" });
+    const storageRef = ref(storage, `encrypted_files/${fileName}`);
+    await uploadBytes(storageRef, blob);
+    return await getDownloadURL(storageRef);
   };
 
   const handleEncryption = () => {
@@ -46,7 +69,7 @@ function FileEncryption() {
     isCancelledRef.current = false;
 
     const reader = new FileReader();
-    reader.onload = () => {
+    reader.onload = async () => {
       if (isCancelledRef.current) {
         setIsLoading(false);
         return;
@@ -63,6 +86,15 @@ function FileEncryption() {
         setEncryptionExplanation(
           "File telah dienkripsi menggunakan algoritma RC4. Data file dienkripsi dengan kunci rahasia dan disimpan dalam format teks."
         );
+
+        // Upload to Firebase Storage
+        try {
+          const url = await uploadToFirebaseStorage(outputData, fileName);
+          await uploadToHistories({ fileName, cipherMethod: "file",  downloadURL: url, secretKey });
+        } catch (error) {
+          console.error("Error uploading file:", error);
+          alert("Gagal mengunggah file.");
+        }
       }
       setIsLoading(false);
     };

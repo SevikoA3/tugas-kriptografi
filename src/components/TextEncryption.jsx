@@ -2,6 +2,18 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import isLoggedIn from "../utils/loggedIn";
 import BackButton from "../features/BackButton";
+import { db } from "../utils/connect_db";
+import { addDoc, collection } from "firebase/firestore";
+
+const uploadToHistories = async (data) => {
+  const session = JSON.parse(localStorage.getItem("session"));
+  const historiesCollection = collection(db, "histories");
+  await addDoc(historiesCollection, {
+    username: session.username,
+    ...data,
+    timestamp: new Date()
+  });
+};
 
 const caesarCipherEncrypt = (text, shift) => {
   shift = shift % 26;
@@ -86,7 +98,7 @@ function TextEncryption() {
     checkLoggedIn();
   }, [navigate]);
 
-  const handleEncryption = () => {
+  const handleEncryption = async () => {
     if (cipherMethod !== "atbashCipher" && !secretKey) {
       alert("Silakan masukkan kunci rahasia yang sesuai.");
       return;
@@ -129,7 +141,7 @@ function TextEncryption() {
         const exampleEncryption = Array.from(exampleText)
           .map((char) => {
             if (char === " ") return "spasi";
-            return `${char} menjadi ${atbashCipherEncrypt(char)}`
+            return `${char} menjadi ${atbashCipherEncrypt(char)}`;
           }).join(", ");
         explanation = `Atbash Cipher adalah algoritma substitusi sederhana yang memetakan setiap huruf ke huruf yang berlawanan dalam alfabet. Misalnya, ${exampleEncryption}, dan seterusnya.`;
         break;
@@ -147,6 +159,13 @@ function TextEncryption() {
 
     setEncryptedText(encrypted);
     setEncryptionExplanation(explanation);
+
+    // Upload ke histories
+    try {
+      await uploadToHistories({ plainText, encryptedText: encrypted, secretKey, cipherMethod });
+    } catch (error) {
+      console.error("Error uploading to histories:", error);
+    }
   };
 
   const handleCopy = () => {

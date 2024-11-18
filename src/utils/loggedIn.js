@@ -1,5 +1,5 @@
 import { collection, getDocs, query, where } from "firebase/firestore";
-import db from "./connect_db";
+import { db } from "./connect_db";
 
 const isLoggedIn = async () => {
   try {

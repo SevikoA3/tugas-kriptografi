@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import CryptoJS from "crypto-js";
-import db from "../utils/connect_db";
+import { db } from "../utils/connect_db";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import isLoggedIn from "../utils/loggedIn";
 

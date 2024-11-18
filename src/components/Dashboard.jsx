@@ -91,6 +91,16 @@ function Dashboard() {
                 </Link>
               </td>
             </tr>
+            <tr>
+              <td className="px-4 py-2 border border-border-color text-center" colSpan={2}>
+                <Link
+                  to="/histories"
+                  className="text-xl font-semibold text-accent-bg hover:underline"
+                >
+                  Histories
+                </Link>
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>

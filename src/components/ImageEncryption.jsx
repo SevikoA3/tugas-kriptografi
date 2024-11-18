@@ -1,7 +1,21 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import isLoggedIn from "../utils/loggedIn";
 import BackButton from "../features/BackButton";
+import { storage } from "../utils/connect_db";
+import { addDoc, collection } from "firebase/firestore";
+import { db } from "../utils/connect_db";
+
+const uploadToHistories = async (data) => {
+  const session = JSON.parse(localStorage.getItem("session"));
+  const historiesCollection = collection(db, "histories");
+  await addDoc(historiesCollection, {
+    username: session.username,
+    ...data,
+    timestamp: new Date()
+  });
+};
 
 function ImageEncryption() {
   const navigate = useNavigate();
@@ -30,8 +44,24 @@ function ImageEncryption() {
     setEncryptedImage(null);
 
     if (file) {
-      // Always set output file name to "encrypted.png"
-      setOutputFileName("encrypted.png");
+      setOutputFileName(`${Math.random().toString(36).substring(2, 12)}.png`);
+    }
+  };
+
+  const uploadToFirebaseStorage = async (dataURL) => {
+    try {
+      const response = await fetch(dataURL);
+      const blob = await response.blob();
+      setOutputFileName(`${Math.random().toString(36).substring(2, 12)}.png`);
+      const storageRef = ref(storage, `encrypted_images/${outputFileName}`);
+      await uploadBytes(storageRef, blob);
+      const url = await getDownloadURL(storageRef);
+      await uploadToHistories({ fileName: outputFileName, cipherMethod: "image", downloadURL: url, secretKey: message, storagePath: `encrypted_images/${outputFileName}` });
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      alert("Gagal mengunggah gambar.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -103,8 +133,10 @@ function ImageEncryption() {
         if (!isCancelledRef.current) {
           setEncryptedImage(encryptedImageURL);
           setEncryptionExplanation("Pesan telah disembunyikan ke dalam gambar menggunakan teknik steganografi dengan metode LSB (Least Significant Bit). Setiap bit pesan disisipkan ke dalam bit paling tidak signifikan dari piksel gambar.");
+          uploadToFirebaseStorage(encryptedImageURL);
+        } else {
+          setIsLoading(false);
         }
-        setIsLoading(false);
       };
       img.onerror = (err) => {
         console.error("Error loading image:", err);
