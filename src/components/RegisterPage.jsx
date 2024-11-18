@@ -63,12 +63,8 @@ function RegisterPage() {
         signal: abortControllerRef.current.signal,
       });
 
-      if (
-        userSnapshot.docs.some(
-          (doc) => doc.data().username === username.toLowerCase()
-        )
-      ) {
-        alert("Username is already taken");
+      if ( userSnapshot.docs.some((doc) => doc.data().username === username.toLowerCase())) {
+        alert("Username sudah terdaftar, silahkan gunakan username lain");
         setIsLoading(false);
         return;
       }
@@ -82,7 +78,7 @@ function RegisterPage() {
       await addDoc(usersCollection, newUser);
       setUsername("");
       setPassword("");
-      alert("Registration successful!");
+      alert("Registrasi berhasil!");
       navigate("/login");
     } catch (error) {
       if (error.name === "AbortError") {
