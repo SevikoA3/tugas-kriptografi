@@ -102,9 +102,7 @@ function ImageEncryption() {
         // After successfully embedding the message
         if (!isCancelledRef.current) {
           setEncryptedImage(encryptedImageURL);
-          setEncryptionExplanation(
-            "Pesan telah disembunyikan ke dalam gambar menggunakan teknik steganografi dengan metode LSB (Least Significant Bit). Setiap bit pesan disisipkan ke dalam bit paling tidak signifikan dari piksel gambar."
-          );
+          setEncryptionExplanation("Pesan telah disembunyikan ke dalam gambar menggunakan teknik steganografi dengan metode LSB (Least Significant Bit). Setiap bit pesan disisipkan ke dalam bit paling tidak signifikan dari piksel gambar.");
         }
         setIsLoading(false);
       };

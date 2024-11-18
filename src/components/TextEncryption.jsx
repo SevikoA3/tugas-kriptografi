@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import isLoggedIn from "../utils/loggedIn";
 import BackButton from "../features/BackButton";
 
-// Updated Caesar Cipher Encryption Function
 const caesarCipherEncrypt = (text, shift) => {
   shift = shift % 26;
   let encryptedText = "";
@@ -100,9 +99,9 @@ function TextEncryption() {
           alert("Kunci harus berupa angka positif lebih dari 0.");
           return;
         }
+        explanation = `Caesar Cipher menggeser setiap huruf dalam teks kembali sebesar ${shiftValue} mod 26 = ${shiftValue % 26} posisi untuk mendapatkan teks enkripsi.`;
         shiftValue = shiftValue % 26;
         encrypted = caesarCipherEncrypt(plainText, shiftValue);
-        explanation = `Caesar Cipher menggeser setiap huruf dalam teks sebesar ${shiftValue} posisi dalam alfabet.`;
         break;
       case "vigenereCipher":
         if (!/^[A-Za-z]+$/.test(secretKey)) {
@@ -110,11 +109,17 @@ function TextEncryption() {
           return;
         }
         encrypted = vigenereCipherEncrypt(plainText, secretKey);
-        explanation = `Vigenère Cipher menggunakan kunci '${secretKey}' untuk menggeser huruf berdasarkan setiap karakter pada kunci.`;
+        explanation = `Vigenère Cipher menggunakan kunci Kunci "${secretKey}" diubah menjadi ${Array.from(secretKey).map((char) => char.charCodeAt(0) - 65).join(", ")} untuk menggeser huruf. Jika kunci lebih pendek dari teks, kunci akan diulang untuk setiap karakter.`;
         break;
       case "atbashCipher":
         encrypted = atbashCipherEncrypt(plainText);
-        explanation = "Atbash Cipher memetakan setiap huruf ke huruf yang berlawanan dalam alfabet.";
+        const exampleText = plainText.slice(0, 5); // Ambil 5 karakter pertama untuk contoh
+        const exampleEncryption = Array.from(exampleText)
+          .map((char) => {
+            if (char === " ") return "spasi";
+            return `${char} menjadi ${atbashCipherEncrypt(char)}`
+          }).join(", ");
+        explanation = `Atbash Cipher adalah algoritma substitusi sederhana yang memetakan setiap huruf ke huruf yang berlawanan dalam alfabet. Misalnya, ${exampleEncryption}, dan seterusnya.`;
         break;
       case "superEncryption":
         const normalizedKey = secretKey.replace(/\s+/g, "").toUpperCase();
@@ -140,7 +145,7 @@ function TextEncryption() {
 
   const handleCopy = () => {
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      // Use the modern Clipboard API
+      // menggunakan Clipboard API
       navigator.clipboard.writeText(encryptedText).then(
         () => {
           alert("Teks berhasil disalin!");
@@ -151,7 +156,7 @@ function TextEncryption() {
         }
       );
     } else {
-      // Use the fallback method
+      // menggunakan metode fallback
       fallbackCopyTextToClipboard(encryptedText);
     }
   };
@@ -160,7 +165,7 @@ function TextEncryption() {
     const textArea = document.createElement("textarea");
     textArea.value = text;
 
-    // Avoid scrolling to bottom
+    // Agar tidak scroll ke bawah
     textArea.style.position = "fixed";
     textArea.style.top = "-1000px";
     textArea.style.left = "-1000px";
@@ -191,7 +196,7 @@ function TextEncryption() {
       </div>
       <div className="w-full max-w-2xl p-8 bg-secondary-bg rounded-3xl shadow-md mx-5">
         <h2 className="mb-6 text-2xl font-bold text-center">
-          Super Enkripsi Teks
+          Enkripsi Teks
         </h2>
         <select
           className="w-full px-4 py-2 mb-4 border border-border-color rounded bg-secondary-bg text-text-primary"

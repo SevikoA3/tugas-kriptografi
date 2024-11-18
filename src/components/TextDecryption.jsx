@@ -90,9 +90,9 @@ function TextDecryption() {
             alert("Kunci harus berupa angka positif lebih dari 0.");
             return;
           }
+          explanation = `Caesar Cipher menggeser setiap huruf dalam teks kembali sebesar ${shiftValue} mod 26 = ${shiftValue % 26} posisi untuk mendapatkan teks asli.`;
           shiftValue = shiftValue % 26; // Limit shift to 0-25
           decrypted = caesarCipherDecrypt(encryptedText, shiftValue);
-          explanation = `Caesar Cipher menggeser setiap huruf dalam teks kembali sebesar ${shiftValue} posisi untuk mendapatkan teks asli.`;
           break;
         case "vigenereCipher":
           if (!/^[A-Za-z]+$/.test(secretKey)) {
@@ -100,12 +100,17 @@ function TextDecryption() {
             return;
           }
           decrypted = vigenereCipherDecrypt(encryptedText, secretKey);
-          explanation = `Vigenère Cipher menggunakan kunci '${secretKey}' untuk membalik pergeseran yang diterapkan selama enkripsi.`;
+          explanation = `Vigenère Cipher menggunakan kunci Kunci "${secretKey}" diubah menjadi ${Array.from(secretKey).map((char) => char.charCodeAt(0) - 65).join(", ")} untuk menggeser huruf. Jika kunci lebih pendek dari teks, kunci akan diulang untuk setiap karakter.`;
           break;
         case "atbashCipher":
-          // ...existing code...
           decrypted = atbashCipherDecrypt(encryptedText);
-          explanation = "Atbash Cipher memetakan setiap huruf dalam teks ke huruf yang berlawanan dalam alfabet.";
+          const exampleText = encryptedText.slice(0, 5); // Ambil 5 karakter pertama untuk contoh
+          const exampleDecryption = Array.from(exampleText)
+            .map((char) => {
+              if (char === " ") return "spasi";
+              return `${char} menjadi ${atbashCipherDecrypt(char)}`;
+            }).join(", ");
+          explanation = `Atbash Cipher adalah algoritma substitusi sederhana yang memetakan setiap huruf ke huruf yang berlawanan dalam alfabet. Misalnya, ${exampleDecryption}, dan seterusnya.`;
           break;
         case "superEncryption":
           let normalizedKey = secretKey.replace(/\s+/g, "").toUpperCase();
@@ -183,7 +188,7 @@ function TextDecryption() {
       </div>
       <div className="w-full max-w-2xl p-8 bg-secondary-bg rounded-3xl shadow-md mx-5">
         <h2 className="mb-6 text-2xl font-bold text-center">
-          Super Dekripsi Teks
+          Dekripsi Teks
         </h2>
         <select
           className="w-full px-4 py-2 mb-4 border border-border-color rounded bg-secondary-bg text-text-primary"

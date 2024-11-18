@@ -82,9 +82,7 @@ function ImageDecryption() {
         const extractedMessage = bitsToMessage(messageBits);
         if (!isCancelledRef.current) {
           setExtractedMessage(extractedMessage);
-          setDecryptionExplanation(
-            "Pesan telah diekstrak dari gambar menggunakan teknik steganografi dengan metode LSB (Least Significant Bit). Bit-bit pesan dibaca dari bit paling tidak signifikan dari piksel gambar."
-          );
+          setDecryptionExplanation("Pesan telah diekstrak dari gambar menggunakan teknik steganografi dengan metode LSB (Least Significant Bit). Bit-bit pesan dibaca dari bit paling tidak signifikan dari piksel gambar.");
         }
         setIsLoading(false);
       };
