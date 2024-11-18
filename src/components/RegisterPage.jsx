@@ -50,6 +50,12 @@ function RegisterPage() {
         return;
       }
 
+      if (/\s/g.test(username)) {
+        alert("Username must not contain spaces");
+        setIsLoading(false);
+        return;
+      }
+
       const hashedPassword = CryptoJS.SHA256(password).toString();
       const usersCollection = collection(db, "users");
 
