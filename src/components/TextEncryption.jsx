@@ -3,21 +3,20 @@ import { useNavigate } from "react-router-dom";
 import isLoggedIn from "../utils/loggedIn";
 import BackButton from "../features/BackButton";
 
-// Encryption Functions
-const caesarCipherEncrypt = (text, key) => {
-  const shift = key.length % 26;
+// Updated Caesar Cipher Encryption Function
+const caesarCipherEncrypt = (text, shift) => {
+  shift = shift % 26;
   let encryptedText = "";
   text.split("").forEach((char) => {
     if (/[a-zA-Z]/.test(char)) {
       const base = char >= "a" && char <= "z" ? 97 : 65;
       encryptedText += String.fromCharCode(
-        ((char.charCodeAt(0) - base + shift) % 26) + base
+        ((char.charCodeAt(0) - base + shift + 26) % 26) + base
       );
     } else {
       encryptedText += char;
     }
   });
-
   return encryptedText;
 };
 
@@ -60,6 +59,8 @@ function TextEncryption() {
   const [plainText, setPlainText] = useState("");
   const [encryptedText, setEncryptedText] = useState("");
   const [secretKey, setSecretKey] = useState("");
+  const [cipherMethod, setCipherMethod] = useState("superEncryption");
+  const [encryptionExplanation, setEncryptionExplanation] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -75,8 +76,8 @@ function TextEncryption() {
   }, [navigate]);
 
   const handleEncryption = () => {
-    if (!secretKey) {
-      alert("Silakan masukkan kunci rahasia.");
+    if (cipherMethod !== "atbashCipher" && !secretKey) {
+      alert("Silakan masukkan kunci rahasia yang sesuai.");
       return;
     }
 
@@ -85,15 +86,56 @@ function TextEncryption() {
       return;
     }
 
-    // Super Encryption Process
-    const normalizedKey = secretKey.replace(/\s+/g, "").toUpperCase();
+    let encrypted = "";
+    let explanation = "";
 
-    let encrypted = plainText;
-    encrypted = caesarCipherEncrypt(encrypted, normalizedKey);
-    encrypted = vigenereCipherEncrypt(encrypted, normalizedKey);
-    encrypted = atbashCipherEncrypt(encrypted);
+    switch (cipherMethod) {
+      case "caesarCipher":
+        if (!/^\d+$/.test(secretKey)) {
+          alert("Kunci untuk Caesar Cipher harus berupa angka positif.");
+          return;
+        }
+        let shiftValue = parseInt(secretKey, 10);
+        if (shiftValue <= 0) {
+          alert("Kunci harus berupa angka positif lebih dari 0.");
+          return;
+        }
+        shiftValue = shiftValue % 26;
+        encrypted = caesarCipherEncrypt(plainText, shiftValue);
+        explanation = `Caesar Cipher menggeser setiap huruf dalam teks sebesar ${shiftValue} posisi dalam alfabet.`;
+        break;
+      case "vigenereCipher":
+        if (!/^[A-Za-z]+$/.test(secretKey)) {
+          alert("Kunci Vigenère hanya boleh mengandung huruf alfabet.");
+          return;
+        }
+        encrypted = vigenereCipherEncrypt(plainText, secretKey);
+        explanation = `Vigenère Cipher menggunakan kunci '${secretKey}' untuk menggeser huruf berdasarkan setiap karakter pada kunci.`;
+        break;
+      case "atbashCipher":
+        encrypted = atbashCipherEncrypt(plainText);
+        explanation = "Atbash Cipher memetakan setiap huruf ke huruf yang berlawanan dalam alfabet.";
+        break;
+      case "superEncryption":
+        const normalizedKey = secretKey.replace(/\s+/g, "").toUpperCase();
+        if (/[^a-zA-Z]/.test(normalizedKey)) {
+          alert("Kunci hanya boleh mengandung huruf alfabet (a-z, A-Z).");
+          return;
+        }
+        encrypted = plainText;
+        const superShift = normalizedKey.length % 26;
+        encrypted = caesarCipherEncrypt(encrypted, superShift);
+        encrypted = vigenereCipherEncrypt(encrypted, normalizedKey);
+        encrypted = atbashCipherEncrypt(encrypted);
+        explanation = `Super Enkripsi menerapkan Caesar Cipher dengan pergeseran ${superShift}, kemudian Vigenère Cipher dengan kunci '${normalizedKey}', dan akhirnya Atbash Cipher pada teks.`;
+        break;
+      default:
+        alert("Metode enkripsi tidak valid.");
+        return;
+    }
 
     setEncryptedText(encrypted);
+    setEncryptionExplanation(explanation);
   };
 
   const handleCopy = () => {
@@ -151,13 +193,25 @@ function TextEncryption() {
         <h2 className="mb-6 text-2xl font-bold text-center">
           Super Enkripsi Teks
         </h2>
-        <input
-          type="text"
-          placeholder="Masukkan Kunci Rahasia"
+        <select
           className="w-full px-4 py-2 mb-4 border border-border-color rounded bg-secondary-bg text-text-primary"
-          value={secretKey}
-          onChange={(e) => setSecretKey(e.target.value)}
-        />
+          value={cipherMethod}
+          onChange={(e) => setCipherMethod(e.target.value)}
+        >
+          <option value="caesarCipher">Caesar Cipher</option>
+          <option value="vigenereCipher">Vigenère Cipher</option>
+          <option value="atbashCipher">Atbash Cipher</option>
+          <option value="superEncryption">Super Enkripsi</option>
+        </select>
+        {cipherMethod !== "atbashCipher" && (
+          <input
+            type="text"
+            placeholder="Masukkan Kunci Rahasia"
+            className="w-full px-4 py-2 mb-4 border border-border-color rounded bg-secondary-bg text-text-primary"
+            value={secretKey}
+            onChange={(e) => setSecretKey(e.target.value)}
+          />
+        )}
         <textarea
           className="w-full px-4 py-2 mb-4 border border-border-color rounded bg-secondary-bg text-text-primary"
           rows="6"
@@ -188,6 +242,12 @@ function TextEncryption() {
                 Salin Teks
               </button>
             </div>
+            {encryptionExplanation && (
+              <div className="mt-4">
+                <h3 className="mb-2 text-xl font-semibold">Penjelasan Enkripsi:</h3>
+                <p className="text-justify">{encryptionExplanation}</p>
+              </div>
+            )}
           </div>
         )}
       </div>

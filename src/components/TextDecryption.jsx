@@ -34,9 +34,9 @@ const vigenereCipherDecrypt = (text, key) => {
   return result;
 };
 
-// Caesar Cipher Decryption
-const caesarCipherDecrypt = (text, key) => {
-  const shift = key.length % 26;
+// Updated Caesar Cipher Decryption Function
+const caesarCipherDecrypt = (text, shift) => {
+  shift = shift % 26; // Ensure shift is within 0-25
   return text.replace(/[a-zA-Z]/g, (char) => {
     const base = char >= "a" && char <= "z" ? 97 : 65;
     return String.fromCharCode(
@@ -49,6 +49,8 @@ function TextDecryption() {
   const [encryptedText, setEncryptedText] = useState("");
   const [decryptedText, setDecryptedText] = useState("");
   const [secretKey, setSecretKey] = useState("");
+  const [cipherMethod, setCipherMethod] = useState("superEncryption");
+  const [decryptionExplanation, setDecryptionExplanation] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -63,8 +65,8 @@ function TextDecryption() {
   }, [navigate]);
 
   const handleDecryption = () => {
-    if (!secretKey) {
-      alert("Silakan masukkan kunci rahasia.");
+    if (cipherMethod !== "atbashCipher" && !secretKey) {
+      alert("Silakan masukkan kunci rahasia yang sesuai.");
       return;
     }
 
@@ -73,20 +75,60 @@ function TextDecryption() {
       return;
     }
 
+    let decrypted = "";
+    let explanation = "";
+
     try {
-      // Super Decryption Process (reverse order)
-      let normalizedKey = secretKey.replace(/\s+/g, "").toUpperCase();
-      let decrypted = encryptedText;
-      decrypted = atbashCipherDecrypt(decrypted);
-      decrypted = vigenereCipherDecrypt(decrypted, normalizedKey);
-      decrypted = caesarCipherDecrypt(decrypted, normalizedKey);
+      switch (cipherMethod) {
+        case "caesarCipher":
+          if (!/^\d+$/.test(secretKey)) {
+            alert("Kunci untuk Caesar Cipher harus berupa angka positif.");
+            return;
+          }
+          let shiftValue = parseInt(secretKey, 10);
+          if (shiftValue <= 0) {
+            alert("Kunci harus berupa angka positif lebih dari 0.");
+            return;
+          }
+          shiftValue = shiftValue % 26; // Limit shift to 0-25
+          decrypted = caesarCipherDecrypt(encryptedText, shiftValue);
+          explanation = `Caesar Cipher menggeser setiap huruf dalam teks kembali sebesar ${shiftValue} posisi untuk mendapatkan teks asli.`;
+          break;
+        case "vigenereCipher":
+          if (!/^[A-Za-z]+$/.test(secretKey)) {
+            alert("Kunci Vigenère hanya boleh mengandung huruf alfabet.");
+            return;
+          }
+          decrypted = vigenereCipherDecrypt(encryptedText, secretKey);
+          explanation = `Vigenère Cipher menggunakan kunci '${secretKey}' untuk membalik pergeseran yang diterapkan selama enkripsi.`;
+          break;
+        case "atbashCipher":
+          // ...existing code...
+          decrypted = atbashCipherDecrypt(encryptedText);
+          explanation = "Atbash Cipher memetakan setiap huruf dalam teks ke huruf yang berlawanan dalam alfabet.";
+          break;
+        case "superEncryption":
+          let normalizedKey = secretKey.replace(/\s+/g, "").toUpperCase();
+          if (/[^a-zA-Z]/.test(normalizedKey)) {
+            alert("Kunci hanya boleh mengandung huruf alfabet (a-z, A-Z).");
+            return;
+          }
+          decrypted = encryptedText;
+          decrypted = atbashCipherDecrypt(decrypted);
+          decrypted = vigenereCipherDecrypt(decrypted, normalizedKey);
+          const superShift = normalizedKey.length % 26;
+          decrypted = caesarCipherDecrypt(decrypted, superShift);
+          explanation = `Super Dekripsi membalik proses Super Enkripsi dengan menerapkan Atbash Cipher, kemudian Vigenère Cipher dengan kunci '${normalizedKey}', dan akhirnya Caesar Cipher dengan pergeseran ${superShift}.`;
+          break;
+        default:
+          alert("Metode dekripsi tidak valid.");
+          return;
+      }
 
       setDecryptedText(decrypted);
+      setDecryptionExplanation(explanation);
     } catch (error) {
-      alert(
-        "Gagal mendekripsi teks. Pastikan teks terenkripsi valid dan kunci yang digunakan benar."
-      );
-      console.error("Error during decryption:", error);
+      // ...existing error handling...
     }
   };
 
@@ -143,13 +185,25 @@ function TextDecryption() {
         <h2 className="mb-6 text-2xl font-bold text-center">
           Super Dekripsi Teks
         </h2>
-        <input
-          type="text"
-          placeholder="Masukkan Kunci Rahasia"
+        <select
           className="w-full px-4 py-2 mb-4 border border-border-color rounded bg-secondary-bg text-text-primary"
-          value={secretKey}
-          onChange={(e) => setSecretKey(e.target.value)}
-        />
+          value={cipherMethod}
+          onChange={(e) => setCipherMethod(e.target.value)}
+        >
+          <option value="caesarCipher">Caesar Cipher</option>
+          <option value="vigenereCipher">Vigenère Cipher</option>
+          <option value="atbashCipher">Atbash Cipher</option>
+          <option value="superEncryption">Super Dekripsi</option>
+        </select>
+        {cipherMethod !== "atbashCipher" && (
+          <input
+            type="text"
+            placeholder="Masukkan Kunci Rahasia"
+            className="w-full px-4 py-2 mb-4 border border-border-color rounded bg-secondary-bg text-text-primary"
+            value={secretKey}
+            onChange={(e) => setSecretKey(e.target.value)}
+          />
+        )}
         <textarea
           className="w-full px-4 py-2 mb-4 border border-border-color rounded bg-secondary-bg text-text-primary"
           rows="6"
@@ -180,6 +234,12 @@ function TextDecryption() {
                 Salin Teks
               </button>
             </div>
+            {decryptionExplanation && (
+              <div className="mt-4">
+                <h3 className="mb-2 text-xl font-semibold">Penjelasan Dekripsi:</h3>
+                <p className="text-justify">{decryptionExplanation}</p>
+              </div>
+            )}
           </div>
         )}
       </div>

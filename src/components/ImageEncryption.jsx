@@ -12,6 +12,7 @@ function ImageEncryption() {
   const canvasRef = useRef(null);
   const [isLoading, setIsLoading] = useState(false);
   const isCancelledRef = useRef(false);
+  const [encryptionExplanation, setEncryptionExplanation] = useState("");
 
   useEffect(() => {
     const checkLoggedIn = async () => {
@@ -98,8 +99,12 @@ function ImageEncryption() {
         const mimeType = "image/png";
         const encryptedImageURL = canvas.toDataURL(mimeType);
 
+        // After successfully embedding the message
         if (!isCancelledRef.current) {
           setEncryptedImage(encryptedImageURL);
+          setEncryptionExplanation(
+            "Pesan telah disembunyikan ke dalam gambar menggunakan teknik steganografi dengan metode LSB (Least Significant Bit). Setiap bit pesan disisipkan ke dalam bit paling tidak signifikan dari piksel gambar."
+          );
         }
         setIsLoading(false);
       };
@@ -206,6 +211,12 @@ function ImageEncryption() {
             >
               Download Gambar Terenkripsi
             </a>
+            {encryptionExplanation && (
+              <div className="mt-4">
+                <h3 className="mb-4 text-xl font-semibold">Penjelasan Enkripsi:</h3>
+                <p className="text-justify">{encryptionExplanation}</p>
+              </div>
+            )}
           </div>
         )}
         {/* Hidden canvas for image processing */}

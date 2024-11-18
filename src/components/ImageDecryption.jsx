@@ -10,6 +10,7 @@ function ImageDecryption() {
   const canvasRef = useRef(null);
   const [isLoading, setIsLoading] = useState(false);
   const isCancelledRef = useRef(false);
+  const [decryptionExplanation, setDecryptionExplanation] = useState("");
 
   useEffect(() => {
     const checkLoggedIn = async () => {
@@ -81,6 +82,9 @@ function ImageDecryption() {
         const extractedMessage = bitsToMessage(messageBits);
         if (!isCancelledRef.current) {
           setExtractedMessage(extractedMessage);
+          setDecryptionExplanation(
+            "Pesan telah diekstrak dari gambar menggunakan teknik steganografi dengan metode LSB (Least Significant Bit). Bit-bit pesan dibaca dari bit paling tidak signifikan dari piksel gambar."
+          );
         }
         setIsLoading(false);
       };
@@ -176,6 +180,12 @@ function ImageDecryption() {
               value={extractedMessage}
               readOnly
             />
+            {decryptionExplanation && (
+              <div className="mt-4">
+                <h3 className="mb-2 text-xl font-semibold">Penjelasan Dekripsi:</h3>
+                <p className="text-justify">{decryptionExplanation}</p>
+              </div>
+            )}
           </div>
         )}
         {/* Hidden canvas for image processing */}

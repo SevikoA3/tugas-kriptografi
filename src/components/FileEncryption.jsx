@@ -12,6 +12,7 @@ function FileEncryption() {
   const [isLoading, setIsLoading] = useState(false);
   const isCancelledRef = useRef(false);
   const navigate = useNavigate();
+  const [encryptionExplanation, setEncryptionExplanation] = useState("");
 
   useEffect(() => {
     const checkLoggedIn = async () => {
@@ -59,6 +60,9 @@ function FileEncryption() {
 
       if (!isCancelledRef.current) {
         setEncryptedData(outputData);
+        setEncryptionExplanation(
+          "File telah dienkripsi menggunakan algoritma RC4. Data file dienkripsi dengan kunci rahasia dan disimpan dalam format teks."
+        );
       }
       setIsLoading(false);
     };
@@ -146,6 +150,12 @@ function FileEncryption() {
                 Download Encrypted Data as TXT
               </button>
             </div>
+            {encryptionExplanation && (
+              <div className="mt-4">
+                <h3 className="mb-2 text-xl font-semibold">Penjelasan Enkripsi:</h3>
+                <p className="text-justify">{encryptionExplanation}</p>
+              </div>
+            )}
           </div>
         )}
       </div>

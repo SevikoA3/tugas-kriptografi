@@ -10,6 +10,7 @@ function FileDecryption() {
   const [fileName, setFileName] = useState("");
   const [secretKey, setSecretKey] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [decryptionExplanation, setDecryptionExplanation] = useState("");
   const isCancelledRef = useRef(false);
   const navigate = useNavigate();
 
@@ -63,6 +64,9 @@ function FileDecryption() {
       const url = URL.createObjectURL(blob);
       if (!isCancelledRef.current) {
         setDecryptedBlob({ url, extension: fileExtension });
+        setDecryptionExplanation(
+          "File telah didekripsi menggunakan algoritma RC4 dengan kunci rahasia yang diberikan. Data terenkripsi telah dikembalikan ke bentuk aslinya."
+        );
       }
     } catch (error) {
       alert(
@@ -152,6 +156,12 @@ function FileDecryption() {
             >
               Download File Didekripsi
             </a>
+            {decryptionExplanation && (
+              <div className="mt-4">
+                <h3 className="mb-2 text-xl font-semibold">Penjelasan Dekripsi:</h3>
+                <p className="text-justify">{decryptionExplanation}</p>
+              </div>
+            )}
           </div>
         )}
       </div>
