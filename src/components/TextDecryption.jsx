@@ -45,6 +45,19 @@ const caesarCipherDecrypt = (text, shift) => {
   });
 };
 
+// Add Super Decrypt Function
+const superDecrypt = (text, key) => {
+  const normalizedKey = key.replace(/\s+/g, "").toUpperCase();
+  const superShift = normalizedKey.length % 26;
+  let decrypted = atbashCipherDecrypt(text);
+  decrypted = vigenereCipherDecrypt(decrypted, normalizedKey);
+  decrypted = caesarCipherDecrypt(decrypted, superShift);
+  return {
+    decrypted,
+    explanation: `Super Dekripsi membalik proses Super Enkripsi dengan menerapkan Atbash Cipher, kemudian Vigenère Cipher dengan kunci '${normalizedKey}', dan akhirnya Caesar Cipher dengan pergeseran ${superShift}.`,
+  };
+};
+
 function TextDecryption() {
   const [encryptedText, setEncryptedText] = useState("");
   const [decryptedText, setDecryptedText] = useState("");
@@ -113,17 +126,11 @@ function TextDecryption() {
           explanation = `Atbash Cipher adalah algoritma substitusi sederhana yang memetakan setiap huruf ke huruf yang berlawanan dalam alfabet. Misalnya, ${exampleDecryption}, dan seterusnya.`;
           break;
         case "superEncryption":
-          let normalizedKey = secretKey.replace(/\s+/g, "").toUpperCase();
-          if (/[^a-zA-Z]/.test(normalizedKey)) {
+          if (/[^a-zA-Z]/.test(secretKey.replace(/\s+/g, ""))) {
             alert("Kunci hanya boleh mengandung huruf alfabet (a-z, A-Z).");
             return;
           }
-          decrypted = encryptedText;
-          decrypted = atbashCipherDecrypt(decrypted);
-          decrypted = vigenereCipherDecrypt(decrypted, normalizedKey);
-          const superShift = normalizedKey.length % 26;
-          decrypted = caesarCipherDecrypt(decrypted, superShift);
-          explanation = `Super Dekripsi membalik proses Super Enkripsi dengan menerapkan Atbash Cipher, kemudian Vigenère Cipher dengan kunci '${normalizedKey}', dan akhirnya Caesar Cipher dengan pergeseran ${superShift}.`;
+          ({ decrypted, explanation } = superDecrypt(encryptedText, secretKey));
           break;
         default:
           alert("Metode dekripsi tidak valid.");
@@ -133,7 +140,7 @@ function TextDecryption() {
       setDecryptedText(decrypted);
       setDecryptionExplanation(explanation);
     } catch (error) {
-      // ...existing error handling...
+      alert("Gagal mendekripsi teks. Pastikan teks terenkripsi valid dan kunci yang digunakan benar.");
     }
   };
 

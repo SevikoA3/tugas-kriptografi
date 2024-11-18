@@ -54,6 +54,18 @@ const atbashCipherEncrypt = (text) => {
   return encryptedText;
 };
 
+const superEncrypt = (text, key) => {
+  const normalizedKey = key.replace(/\s+/g, "").toUpperCase();
+  const superShift = normalizedKey.length % 26;
+  let encrypted = caesarCipherEncrypt(text, superShift);
+  encrypted = vigenereCipherEncrypt(encrypted, normalizedKey);
+  encrypted = atbashCipherEncrypt(encrypted);
+  return {
+    encrypted,
+    explanation: `Super Enkripsi menerapkan Caesar Cipher dengan pergeseran ${superShift}, kemudian Vigenère Cipher dengan kunci '${normalizedKey}', dan akhirnya Atbash Cipher pada teks.`,
+  };
+};
+
 function TextEncryption() {
   const [plainText, setPlainText] = useState("");
   const [encryptedText, setEncryptedText] = useState("");
@@ -122,17 +134,11 @@ function TextEncryption() {
         explanation = `Atbash Cipher adalah algoritma substitusi sederhana yang memetakan setiap huruf ke huruf yang berlawanan dalam alfabet. Misalnya, ${exampleEncryption}, dan seterusnya.`;
         break;
       case "superEncryption":
-        const normalizedKey = secretKey.replace(/\s+/g, "").toUpperCase();
-        if (/[^a-zA-Z]/.test(normalizedKey)) {
+        if (/[^a-zA-Z]/.test(secretKey.replace(/\s+/g, ""))) {
           alert("Kunci hanya boleh mengandung huruf alfabet (a-z, A-Z).");
           return;
         }
-        encrypted = plainText;
-        const superShift = normalizedKey.length % 26;
-        encrypted = caesarCipherEncrypt(encrypted, superShift);
-        encrypted = vigenereCipherEncrypt(encrypted, normalizedKey);
-        encrypted = atbashCipherEncrypt(encrypted);
-        explanation = `Super Enkripsi menerapkan Caesar Cipher dengan pergeseran ${superShift}, kemudian Vigenère Cipher dengan kunci '${normalizedKey}', dan akhirnya Atbash Cipher pada teks.`;
+        ({ encrypted, explanation } = superEncrypt(plainText, secretKey));
         break;
       default:
         alert("Metode enkripsi tidak valid.");
