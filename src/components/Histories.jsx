@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { db, storage } from "../utils/connect_db";
 import { collection, getDocs, query, where, deleteDoc, doc } from "firebase/firestore";
-import { ref, deleteObject } from "firebase/storage";
+import { ref, getDownloadURL, deleteObject } from "firebase/storage";
 import BackButton from "../features/BackButton";
 
 function Histories() {
   const [histories, setHistories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [deletingIds, setDeletingIds] = useState([]);
+  const [downloadingId, setDownloadingId] = useState(null);
 
   useEffect(() => {
     const fetchHistories = async () => {
@@ -53,6 +54,35 @@ function Histories() {
       alert("Gagal menghapus histori.");
     } finally {
       setDeletingIds(prev => prev.filter(id => id !== historyId));
+    }
+  };
+
+  const downloadFile = async (storagePath, fileName) => {
+    if (!storagePath) return;
+
+    setDownloadingId(storagePath);
+
+    try {
+      const storageRef = ref(storage, storagePath);
+      const url = await getDownloadURL(storageRef);
+
+      const response = await fetch(url);
+      const blob = await response.blob();
+
+      // Membuat URL sementara untuk mengunduh
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = fileName || "download";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error("Error downloading file:", error);
+      alert("Gagal mengunduh file.");
+    } finally {
+      setDownloadingId(null);
     }
   };
 
@@ -111,8 +141,14 @@ function Histories() {
                   )}
                   {history.downloadURL && (
                     <div className="mb-1 sm:mb-2">
-                      <span className="font-semibold">Download URL:</span>
-                      <a href={history.downloadURL} className="ml-2 text-accent-bg underline hover:text-accent-hover" target="_blank" rel="noreferrer">Download</a>
+                      <span className="font-semibold">Download File:</span>
+                      <button
+                        className="ml-2 text-accent-bg underline hover:text-accent-hover"
+                        onClick={() => downloadFile(history.storagePath, history.fileName || "file")}
+                        disabled={downloadingId === history.storagePath}
+                      >
+                        {downloadingId === history.storagePath ? "Mengunduh..." : "Download"}
+                      </button>
                     </div>
                   )}
                   {history.imageURL && (
