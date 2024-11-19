@@ -157,7 +157,17 @@ function TextEncryption() {
 
     // Upload ke histories
     try {
-      await uploadToHistories({ plainText, encryptedText: encrypted, secretKey, cipherMethod });
+      let uploadCipherMethod;
+      if (cipherMethod === "caesarCipher") {
+        uploadCipherMethod = "Caesar Cipher";
+      } else if (cipherMethod === "vigenereCipher") {
+        uploadCipherMethod = "Vigenère Cipher";
+      } else if (cipherMethod === "atbashCipher") {
+        uploadCipherMethod = "Atbash Cipher";
+      } else {
+        uploadCipherMethod = "Super Enkripsi";
+      }
+      await uploadToHistories({ plainText, encryptedText: encrypted, secretKey, cipherMethod: uploadCipherMethod });
     } catch (error) {
       console.error("Error uploading to histories:", error);
     }
