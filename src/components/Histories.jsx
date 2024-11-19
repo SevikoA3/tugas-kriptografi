@@ -22,7 +22,27 @@ function Histories() {
         const historiesCollection = collection(db, "histories");
         const q = query(historiesCollection, where("username", "==", session.username));
         const historySnapshot = await getDocs(q);
-        const historyList = historySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        let historyList = historySnapshot.docs.map(doc => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            ...data,
+            rawTimestamp: data.timestamp.toDate(),
+            timestamp: data.timestamp.toDate().toLocaleString("id-ID", {
+              day: "2-digit",
+              month: "long",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+              timeZoneName: "short"
+            })
+          };
+        });
+
+        // Urutkan histori berdasarkan rawTimestamp descending
+        historyList.sort((a, b) => b.rawTimestamp - a.rawTimestamp);
+
         setHistories(historyList);
       } catch (error) {
         console.error("Error fetching histories:", error);
@@ -177,6 +197,12 @@ function Histories() {
                       </p>
                     </div>
                   )}
+                  <div className="mb-1 sm:mb-2">
+                    <span className="font-semibold">Waktu Enkripsi:</span>
+                    <p className="mt-1 max-h-24 overflow-y-auto p-2 bg-secondary-bg rounded">
+                      {history.timestamp}
+                    </p>
+                  </div>
                 </div>
               ))
             )}
