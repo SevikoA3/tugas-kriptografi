@@ -33,6 +33,7 @@ const caesarCipherEncrypt = (text, shift) => {
 
 const vigenereCipherEncrypt = (text, key) => {
   let result = "";
+  key = key.replace(/[^a-zA-Z]/g, "").toUpperCase();
   let keyIndex = 0;
   for (let i = 0; i < text.length; i++) {
     const char = text[i];
@@ -128,12 +129,22 @@ function TextEncryption() {
         encrypted = caesarCipherEncrypt(plainText, shiftValue);
         break;
       case "vigenereCipher":
-        if (!/^[A-Za-z]+$/.test(secretKey)) {
+        if (!/^[A-Za-z\s]+$/.test(secretKey)) {
           alert("Kunci Vigenère hanya boleh mengandung huruf alfabet.");
           return;
         }
-        encrypted = vigenereCipherEncrypt(plainText, secretKey);
-        explanation = `Vigenère Cipher menggunakan kunci Kunci "${secretKey}" diubah menjadi ${Array.from(secretKey).map((char) => char.charCodeAt(0) - 65).join(", ")} untuk menggeser huruf. Jika kunci lebih pendek dari teks, kunci akan diulang untuk setiap karakter.`;
+        let key = secretKey.replace(/\s+/g, "");
+        encrypted = vigenereCipherEncrypt(plainText, key);
+
+        const keyExplanation = Array.from(key).map((char) => {
+          const charCode = char.charCodeAt(0);
+          if (/[A-Za-z]/.test(char)) {
+            return charCode >= 97 && charCode <= 122 ? charCode - 97 : charCode - 65;
+          }
+          return '';
+        }).filter(Boolean).join(", ");
+        explanation = `Vigenère Cipher menggunakan kunci "${key}" diubah menjadi ${keyExplanation} untuk menggeser huruf. Jika kunci lebih pendek dari teks, kunci akan diulang untuk setiap karakter.`;
+
         break;
       case "atbashCipher":
         encrypted = atbashCipherEncrypt(plainText);

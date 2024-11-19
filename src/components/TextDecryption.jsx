@@ -108,12 +108,21 @@ function TextDecryption() {
           decrypted = caesarCipherDecrypt(encryptedText, shiftValue);
           break;
         case "vigenereCipher":
-          if (!/^[A-Za-z]+$/.test(secretKey)) {
+          if (!/^[A-Za-z\s]+$/.test(secretKey)) {
             alert("Kunci Vigenère hanya boleh mengandung huruf alfabet.");
             return;
           }
-          decrypted = vigenereCipherDecrypt(encryptedText, secretKey);
-          explanation = `Vigenère Cipher menggunakan kunci Kunci "${secretKey}" diubah menjadi ${Array.from(secretKey).map((char) => char.charCodeAt(0) - 65).join(", ")} untuk menggeser huruf. Jika kunci lebih pendek dari teks, kunci akan diulang untuk setiap karakter.`;
+          let key = secretKey.replace(/\s+/g, "");
+          decrypted = vigenereCipherDecrypt(encryptedText, key);
+
+          const keyExplanation = Array.from(key).map((char) => {
+            const charCode = char.charCodeAt(0);
+            if (/[A-Za-z]/.test(char)) {
+              return charCode >= 97 && charCode <= 122 ? charCode - 97 : charCode - 65;
+            }
+            return '';
+          }).filter(Boolean).join(", ");
+          explanation = `Vigenère Cipher menggunakan kunci Kunci "${key}" diubah menjadi ${keyExplanation} untuk menggeser huruf. Jika kunci lebih pendek dari teks, kunci akan diulang untuk setiap karakter.`;
           break;
         case "atbashCipher":
           decrypted = atbashCipherDecrypt(encryptedText);
