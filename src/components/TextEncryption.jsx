@@ -17,18 +17,10 @@ const uploadToHistories = async (data) => {
 
 const caesarCipherEncrypt = (text, shift) => {
   shift = shift % 26;
-  let encryptedText = "";
-  text.split("").forEach((char) => {
-    if (/[a-zA-Z]/.test(char)) {
-      const base = char >= "a" && char <= "z" ? 97 : 65;
-      encryptedText += String.fromCharCode(
-        ((char.charCodeAt(0) - base + shift + 26) % 26) + base
-      );
-    } else {
-      encryptedText += char;
-    }
+  return text.replace(/[a-zA-Z]/g, (char) => {
+    const base = char >= 'a' && char <= 'z' ? 97 : 65;
+    return String.fromCharCode(((char.charCodeAt(0) - base + shift) % 26) + base);
   });
-  return encryptedText;
 };
 
 const vigenereCipherEncrypt = (text, key) => {
@@ -53,18 +45,10 @@ const vigenereCipherEncrypt = (text, key) => {
 };
 
 const atbashCipherEncrypt = (text) => {
-  let encryptedText = "";
-  text.split("").forEach((char) => {
-    if (/[a-zA-Z]/.test(char)) {
-      const base = char >= "a" && char <= "z" ? 97 : 65;
-      encryptedText += String.fromCharCode(
-        base + (25 - (char.charCodeAt(0) - base))
-      );
-    } else {
-      encryptedText += char;
-    }
+  return text.replace(/[a-zA-Z]/g, (char) => {
+    const base = char >= "a" && char <= "z" ? 97 : 65;
+    return String.fromCharCode(base + (25 - (char.charCodeAt(0) - base)));
   });
-  return encryptedText;
 };
 
 const superEncrypt = (text, key) => {

@@ -48,7 +48,6 @@ function Histories() {
       }
 
       setHistories(histories.filter(history => history.id !== historyId));
-      alert("Histori berhasil dihapus.");
     } catch (error) {
       console.error("Error deleting history:", error);
       alert("Gagal menghapus histori.");
